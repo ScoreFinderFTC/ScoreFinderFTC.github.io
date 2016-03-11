@@ -2,9 +2,11 @@
 #Project started on Mar 1, 2016
 
 #Imports
-import openpyxl
 from openpyxl.cell import get_column_letter, column_index_from_string
-
+from string import Template
+import openpyxl
+import codecs
+import os
 #Variables
 templateName = "Template.html"
 parsedScoresName = "Parsed.xlsx"
@@ -15,7 +17,13 @@ print("Loading Workbook... (This will take a moment)")
 scoresFile = openpyxl.load_workbook(parsedScoresName)
 print("Loading Sheet...")
 scrsSht = scoresFile.get_sheet_by_name('Sheet')
-print("Loaded.")
+
+print("Loading HTML Template...")
+templateHtml = codecs.open(templateName, 'r')
+template = Template(templateHtml.read())
+templateHtml.close()
+
+
 
 def percentage(part, whole):
         if(part * whole != 0): #if one of them is not zero
@@ -59,9 +67,18 @@ def getTeamInfo(number):
                 teamWinPercentage = percentage(teamWins, teamAppearances)
         else:
                 return False
-        html = open(templateName, 'w+')
-        print(teamAvgScore)
-        print(exists) 
+
+        htmlSubs = dict(teamNumber=number, avgScore=teamAvgScore) #substitutions into team page
+        os.remove(str(number) + '.html')
+        teamPageStr = template.safe_substitute(htmlSubs)
+        teamPage = codecs.open(str(number) + '.html', 'w+') #opens(or creates) team page
+        teamPage.write(teamPageStr)
+        teamPage.close()
+
         
+        
+
+        print(teamAvgScore)
+        print(exists)
 
 getTeamInfo(6412)
