@@ -12,6 +12,7 @@ import os
 templateName = "Template.html"
 parsedScoresName = "Parsed.xlsx"
 rowsInScores = 2800
+teamFileName = "Teams.html"
 
 #Loading Scoring Sheet
 print("Loading Workbook... (This will take a moment)")
@@ -30,7 +31,7 @@ def percentage(part, whole):
         if(part * whole != 0): #if one of them is not zero
                 return 100 * float(part)/float(whole)
         else:
-                return 0
+                return 'Error: Divison by 0'
 
 def getTeamInfo(number):
         exists = False #weather the team exists
@@ -89,5 +90,5 @@ def getTeamInfo(number):
         print(number)
         return True
 
-for n in range(1000,10000):
+for n in range(1000,11000):
         getTeamInfo(int(n))
