@@ -7,18 +7,21 @@
 	background-color: #2ecc71;
 	padding-top: 1px;
 }
-
+#main {
+	width: 75%;
+	margin-left: 100px;
+	background-color: #f2f2f2;
+}
 header {
-		margin: 0;
-		padding: 0;
-		text-align: center;
+	margin: 0;
+	padding: 0;
+	text-align: center;
 }
 footer {
 	background-color: #2ecc71;
 	text-align: center;
 	font-size: 12px;
 }
-
 body {
 	width: 100%;
 	background-color: #f2f2f2;

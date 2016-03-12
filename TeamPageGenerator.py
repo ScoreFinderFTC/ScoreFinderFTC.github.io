@@ -7,6 +7,7 @@ from string import Template
 import openpyxl
 import codecs
 import os
+
 #Variables
 templateName = "Template.html"
 parsedScoresName = "Parsed.xlsx"
@@ -43,7 +44,7 @@ def getTeamInfo(number):
         teamAvgScore = 0
         teamScores = [0] * 10000000
         for row in range(1, rowsInScores): #increment through the rows of data
-                if(str(scrsSht['N' + str(row)].value).find(str(number)) >= 0): #checks if the team competed in this row/match
+                if(str(scrsSht['N' + str(row)].value).find(str(number)+',') >= 0): #checks if the team competed in this row/match
                         exists = True #if we can find the team, the team exists
                         teamAppearances += 1 #add one to the amount of team matches
                         
@@ -66,19 +67,27 @@ def getTeamInfo(number):
                 teamAvgScore = teamTotalScores / teamAppearances
                 teamWinPercentage = percentage(teamWins, teamAppearances)
         else:
+                print(str(number) + ' does not exist')
                 return False
 
-        htmlSubs = dict(teamNumber=number, avgScore=teamAvgScore) #substitutions into team page
-        os.remove(str(number) + '.html')
+        htmlSubs = dict(
+                teamNumber=number,
+                avgScore=teamAvgScore,
+                matches=teamAppearances,
+                matchWin=teamWinPercentage) #substitutions into team page
+        
         teamPageStr = template.safe_substitute(htmlSubs)
         teamPage = codecs.open(str(number) + '.html', 'w+') #opens(or creates) team page
+        if(teamPage.read() != ''):
+                teamPage.close()
+                os.remove(str(number) + '.html')
+                teamPage = codecs.open(str(number) + '.html', 'w+')
+
         teamPage.write(teamPageStr)
         teamPage.close()
-
         
-        
+        print(number)
+        return True
 
-        print(teamAvgScore)
-        print(exists)
-
-getTeamInfo(6412)
+for n in range(1000,10000):
+        getTeamInfo(int(n))
