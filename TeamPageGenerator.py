@@ -14,18 +14,37 @@ parsedScoresName = "Parsed.xlsx"
 rowsInScores = 2800
 teamFileName = "Teams.html"
 
+teamDirLine = '<p><a href="$number.html">$number</a>' #the line per team
+teamDirTemplate = Template(teamDirLine) #make it into a template
+teamDirectory = ""
+teamDirHtmlStartFl = "TeamDirStart.html"
+teamDirHtmlEndFl = "TeamDirEnd.html"
+teamDirHtmlFl = "TeamDirectory.html"
+
 #Loading Scoring Sheet
 print("Loading Workbook... (This will take a moment)")
 scoresFile = openpyxl.load_workbook(parsedScoresName)
 print("Loading Sheet...")
 scrsSht = scoresFile.get_sheet_by_name('Sheet')
 
+#Load Team Page HTML Template
 print("Loading HTML Template...")
 templateHtml = codecs.open(templateName, 'r')
 template = Template(templateHtml.read())
 templateHtml.close()
 
+#Load Team Directory HTML Template
+print("Loading Team Page HTML...")
+teamDirStartFl = codecs.open(teamDirHtmlStartFl, 'r')
+teamDirectory = teamDirStartFl.read()
+teamDirStartFl.close()
 
+teamDirEndFl = codecs.open(teamDirHtmlEndFl, 'r')
+teamDirEnd = teamDirEndFl.read()
+teamDirEndFl.close()
+
+totalWins = 0
+totalLosses = 0
 
 def percentage(part, whole):
         if(part * whole != 0): #if one of them is not zero
@@ -75,6 +94,9 @@ def getTeamInfo(number):
                 teamNumber=number,
                 avgScore=teamAvgScore,
                 matches=teamAppearances,
+                wins=teamWins,
+                ties=teamTies,
+                losses=teamLosses,
                 matchWin=teamWinPercentage) #substitutions into team page
         
         teamPageStr = template.safe_substitute(htmlSubs)
@@ -86,9 +108,24 @@ def getTeamInfo(number):
 
         teamPage.write(teamPageStr)
         teamPage.close()
+
         
         print(number)
         return True
 
-for n in range(1000,11000):
-        getTeamInfo(int(n))
+for n in range(6410,6500):
+        teamDirSubs = dict(number=n)
+        if(getTeamInfo(int(n))):
+                teamDirectory += teamDirTemplate.safe_substitute(teamDirSubs)
+
+teamDirectory += teamDirEnd
+
+
+teamDirPage = codecs.open(teamDirHtmlFl, 'w+') #opens(or creates) team Directory page
+if(teamDirPage.read() != ''):
+        teamDirPage.close()
+        os.remove(teamDirHtmlFl)
+        teamPage = codecs.open(teamDirHtmlFl, 'w+')
+
+teamDirPage.write(teamDirectory)
+teamDirPage.close()
