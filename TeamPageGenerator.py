@@ -14,7 +14,7 @@ parsedScoresName = "Parsed.xlsx"
 rowsInScores = 2800
 teamFileName = "Teams.html"
 
-teamDirLine = '<p><a href="$number.html">$number</a>' #the line per team
+teamDirLine = '<p><a href="$number.html">$number</a> - Avg: $avg' #the line per team
 teamDirTemplate = Template(teamDirLine) #make it into a template
 teamDirectory = ""
 teamDirHtmlStartFl = "TeamDirStart.html"
@@ -46,11 +46,14 @@ teamDirEndFl.close()
 totalWins = 0
 totalLosses = 0
 
+global teamAvg #stored globally
+teamAvg = 0
+
 def percentage(part, whole):
         if(part * whole != 0): #if one of them is not zero
                 return 100 * float(part)/float(whole)
         else:
-                return 'Error: Divison by 0'
+                return 0
 
 def getTeamInfo(number):
         exists = False #weather the team exists
@@ -84,8 +87,8 @@ def getTeamInfo(number):
 
 
         if(exists):
-                teamAvgScore = teamTotalScores / teamAppearances
-                teamWinPercentage = percentage(teamWins, teamAppearances)
+                teamAvgScore = int(teamTotalScores / teamAppearances)
+                teamWinPercentage = int(percentage(teamWins, teamAppearances))
         else:
                 print(str(number) + ' does not exist')
                 return False
@@ -111,16 +114,18 @@ def getTeamInfo(number):
 
         
         print(number)
-        return True
+        return str(str(teamAvgScore) + ',')
 
 for n in range(6410,6500):
-        teamDirSubs = dict(number=n)
-        if(getTeamInfo(int(n))):
+        teamInfo = getTeamInfo(int(n)) 
+        if(teamInfo):
+                teamDirSubs = dict(number=n, #team number
+                                   avg=teamInfo[:teamInfo.find(',')]) #find avg score 
                 teamDirectory += teamDirTemplate.safe_substitute(teamDirSubs)
 
 teamDirectory += teamDirEnd
 
-
+#write to team Dir file
 teamDirPage = codecs.open(teamDirHtmlFl, 'w+') #opens(or creates) team Directory page
 if(teamDirPage.read() != ''):
         teamDirPage.close()
