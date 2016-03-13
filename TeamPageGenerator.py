@@ -116,7 +116,7 @@ def getTeamInfo(number):
         print(number)
         return str(str(teamAvgScore) + ',')
 
-for n in range(6410,6500):
+for n in range(1000,11050):
         teamInfo = getTeamInfo(int(n)) 
         if(teamInfo):
                 teamDirSubs = dict(number=n, #team number

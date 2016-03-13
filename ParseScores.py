@@ -7,7 +7,7 @@ from openpyxl.cell import get_column_letter, column_index_from_string
 
 
 #Pramaters
-oldWb = "Scores.xlsx"   #Downloaded Wb Name
+oldWb = "Scoring-System-Results(2).xlsx"   #Downloaded Wb Name
 oldSheetName = "Sheet1" #Sheet to get scores from
 oldSheetRows = 2818     #Rows in old sheet to be worked with
 oldSheetStartRow = 2    #Row that data starts on
@@ -129,7 +129,7 @@ def parse ( row ):
     scrsSht['L' + str(row)] = blueScr
     scrsSht['M' + str(row)] = winner
 
-    scrsSht['N' + str(row)] = str(r1) + ',' + str(r2) + ',' + str(r3) + ' (' + str(redScr) + ') ' + " vs. " + str(b1) + ', ' + str(b2)+ ',' + str(b3) + ' (' + str(blueScr) + ') ' + 'WINNER: ' + winner
+    scrsSht['N' + str(row)] = str(r1) + ',' + str(r2) + ',' + str(r3) + " vs. " + str(b1) + ', ' + str(b2) + ',' + str(b3) + 'WINNER: ' + winner
     
 
 for row in range(oldSheetStartRow, oldSheetRows):
