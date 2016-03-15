@@ -11,10 +11,10 @@ import os
 #Variables
 templateName = "Template.html"
 parsedScoresName = "Parsed.xlsx"
-rowsInScores = 2800
+rowsInScores = 4765
 teamFileName = "Teams.html"
 
-teamDirLine = '<p><a href="$number.html">$number</a> - Avg: $avg' #the line per team
+teamDirLine = '<p><a href="$number.html">$number</a> - Avg: $avg \n' #the line per team
 teamDirTemplate = Template(teamDirLine) #make it into a template
 teamDirectory = ""
 teamDirHtmlStartFl = "TeamDirStart.html"
@@ -43,8 +43,10 @@ teamDirEndFl = codecs.open(teamDirHtmlEndFl, 'r')
 teamDirEnd = teamDirEndFl.read()
 teamDirEndFl.close()
 
+#Variables for calculating avg win/loss score
 totalWins = 0
-totalLosses = 0
+totalWinAcc = 0
+avgWinScore = 0
 
 global teamAvg #stored globally
 teamAvg = 0
@@ -55,7 +57,9 @@ def percentage(part, whole):
         else:
                 return 0
 
-def getTeamInfo(number):
+####################################################################################################
+
+def getTeamInfo(number, tWins, tWinsAcc):
         exists = False #weather the team exists
         teamAppearances = 0 #number of matches
         teamAlliance = 'r' #what allance they were on
@@ -66,24 +70,40 @@ def getTeamInfo(number):
         teamTotalScores = 0
         teamAvgScore = 0
         teamScores = [0] * 10000000
+        winner = ''
+
+        
         for row in range(1, rowsInScores): #increment through the rows of data
                 if(str(scrsSht['N' + str(row)].value).find(str(number)+',') >= 0): #checks if the team competed in this row/match
                         exists = True #if we can find the team, the team exists
                         teamAppearances += 1 #add one to the amount of team matches
+                        winner = str(scrsSht['M' + str(row)].value)
+                        matchSummCell = scrsSht['N' + str(row)].value
+
+                        #print(str(matchSummCell.find(str(number)))+ ', ' + str(matchSummCell.find('vs')))
                         
-                        if(str(scrsSht['N' + str(row)].value).find(str(number)) >= str(scrsSht['N' + str(row)].value).find('vs')): #finds if they were on red or blue
-                                teamAlliance = 'r'
-                        else:
+                        if(int(matchSummCell.find(str(number))) >= int(matchSummCell.find('vs'))): #finds if they were on red or blue
                                 teamAlliance = 'b'
-                        if(teamAlliance == str(scrsSht['M' + str(row)].value)): #if team won
+                        else:
+                                teamAlliance = 'r'
+                        if(teamAlliance == winner): #if team won
                                 teamWins += 1
                         else: #the team lost
                                 teamLosses += 1
 
+                        print(teamAlliance + ', ' + winner)
                         if(teamAlliance == 'r'): #if we are on red..
                                 teamTotalScores += scrsSht['H' + str(row)].value #...add the red score to the total scores
                         else:
-                                teamTotalScores += scrsSht['L' + str(row)].value
+                                teamTotalScores += scrsSht['L' + str(row)].value #add blue score to total scores
+
+                        if(winner == 'r'):
+                                tWinsAcc += scrsSht['H' + str(row)].value #add the red score to the global winning scores
+                                tWins += 1
+                        elif(winner == 'b'):
+                                tWinsAcc += scrsSht['L' + str(row)].value #add blue score to the global winning scores
+                                tWins += 1
+                                
 
 
         if(exists):
@@ -114,16 +134,28 @@ def getTeamInfo(number):
 
         
         print(number)
-        return str(str(teamAvgScore) + ',')
+        return str(str(teamAvgScore) + ',tWins:' + str(tWins) + ',tWinAcc:' + str(tWinsAcc))
+
+
+####################################################################################################
+
 
 for n in range(1000,11050):
-        teamInfo = getTeamInfo(int(n)) 
+        teamInfo = getTeamInfo(int(n), totalWins, totalWinAcc) 
         if(teamInfo):
                 teamDirSubs = dict(number=n, #team number
                                    avg=teamInfo[:teamInfo.find(',')]) #find avg score 
                 teamDirectory += teamDirTemplate.safe_substitute(teamDirSubs)
 
+                totalWins = int(teamInfo[teamInfo.find('tWins:') + 6:teamInfo.find(',', teamInfo.find('tWins:'))]) 
+                totalWinAcc += int(teamInfo[teamInfo.find('tWinAcc:') + 8 : teamInfo.find(',', teamInfo.find('tWinAcc:'))])
+
+        
 teamDirectory += teamDirEnd
+avgWinScore = totalWinAcc / totalWins
+print(totalWins)
+print(totalWinAcc)
+print(avgWinScore)
 
 #write to team Dir file
 teamDirPage = codecs.open(teamDirHtmlFl, 'w+') #opens(or creates) team Directory page

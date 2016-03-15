@@ -7,9 +7,9 @@ from openpyxl.cell import get_column_letter, column_index_from_string
 
 
 #Pramaters
-oldWb = "Scoring-System-Results(2).xlsx"   #Downloaded Wb Name
+oldWb = "Scoring-System-Results.xlsx"   #Downloaded Wb Name
 oldSheetName = "Sheet1" #Sheet to get scores from
-oldSheetRows = 2818     #Rows in old sheet to be worked with
+oldSheetRows = 4765     #Rows in old sheet to be worked with
 oldSheetStartRow = 2    #Row that data starts on
 newWb = "Parsed.xlsx"   #New Wb Name
 
@@ -80,6 +80,9 @@ def parse ( row ):
     redScr += int(oldScrSht['AL' + str(row)].value) * 20 #Zip Line
     redScr += int(oldScrSht['AM' + str(row)].value) * 20 #All Clear
     redScr += int(oldScrSht['AN' + str(row)].value) * 80 #Pull up
+    redScr += int(oldScrSht['AQ' + str(row)].value) * 10 #Minor Penalty awarded
+    redScr += int(oldScrSht['AR' + str(row)].value) * 40 #Major Penalty awarded
+    
 
     #Blue
     blueScr += scorePosition(str(b1APos)) #position at end of auto
@@ -97,7 +100,9 @@ def parse ( row ):
     blueScr += int(oldScrSht['BD' + str(row)].value) * 20 #Zip Line
     blueScr += int(oldScrSht['BE' + str(row)].value) * 20 #All Clear
     blueScr += int(oldScrSht['BF' + str(row)].value) * 80 #Pull up
-
+    blueScr += int(oldScrSht['BI' + str(row)].value) * 10 #Minor Penalty awarded
+    blueScr += int(oldScrSht['BJ' + str(row)].value) * 40 #Major Penalty awarded
+    
     if(blueScr > redScr):
         winner = 'b'
     elif(redScr > blueScr):
@@ -130,12 +135,13 @@ def parse ( row ):
     scrsSht['M' + str(row)] = winner
 
     scrsSht['N' + str(row)] = str(r1) + ',' + str(r2) + ',' + str(r3) + " vs. " + str(b1) + ', ' + str(b2) + ',' + str(b3) + 'WINNER: ' + winner
-    
+
+    if(winner == 'b'):
+        scrsSht['O' + str(row)] = blueScr
+    else:
+        scrsSht['O' + str(row)] = redScr
 
 for row in range(oldSheetStartRow, oldSheetRows):
     parse(row)
 scrsFl.save('parsed.xlsx')
 print('complete')
-print('press enter to continue')
-t = input()
-
