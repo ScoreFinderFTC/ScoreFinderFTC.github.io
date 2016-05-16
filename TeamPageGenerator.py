@@ -142,8 +142,10 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
                                 teamAlliance = 'r'
                         if(teamAlliance == winner): #if team won
                                 teamWins += 1
-                        else: #the team lost
+                        elif(teamAlliance != 't'): #the team lost
                                 teamLosses += 1
+                        else:
+                                teamTies += 1
 
                         if(teamAlliance == 'r'): #if we are on red..
                                 teamTotalScores += scrsSht['H' + str(row)].value #...add the red score to the total scores
@@ -190,9 +192,9 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
 
         teamPage.write(teamPageStr)
         teamPage.close()
-
         
-        print(number)
+        
+        print(str(number) + ',' + str(teamTies))
         return str(str(teamAvgScore) + ',tWins:' + str(tWins) + ',tWinAcc:' + str(tWinsAcc))
 
 ####################################################################################################
@@ -215,7 +217,7 @@ statPage.close()
 ####################################################################################################
 
 teamList = getTeamList(rowsInScores)
-for n in range(1000,11050):
+for n in range(4104,4108):
         teamInfo = getTeamInfo(int(n), totalWins, totalWinAcc, teamList) 
         if(teamInfo):
                 teamDirSubs = dict(number=n, #team number
