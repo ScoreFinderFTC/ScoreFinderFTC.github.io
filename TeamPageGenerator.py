@@ -64,6 +64,9 @@ avgWinScore = 0
 global teamAvg #stored globally
 teamAvg = 0
 
+global worldHighest
+worldHighest = 0
+
 ####################################################################################################
 
 def percentage(part, whole):
@@ -88,6 +91,15 @@ def avgScore(rows):
                 totalScrAcc += int(str(scrsSht['H' + str(n)].value))
                 totalScrAcc += int(str(scrsSht['L' + str(n)].value))
         return totalScrAcc / (rows * 2 - 1)
+
+####################################################################################################
+
+def worldHigh(rows):
+        high = 0
+        for n in range(2, rows):
+            if (int(str(scrsSht['O' + str(n)].value)) > high):
+                high = int(str(scrsSht['O' + str(n)].value))
+        return high
 
 ####################################################################################################
 
@@ -120,9 +132,12 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
         teamTotalScores = 0
         teamAvgScore = 0
         teamHighest = 0
+        teamHighestPartner = ''
         teamScore = 0
+        teamPartner = ''
         teamScores = [0] * 10000000
         winner = ''
+
         
         if(teamList.find(str(number) + ',') == -1):
                 return False
@@ -140,6 +155,7 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
                                 teamAlliance = 'b'
                         else:
                                 teamAlliance = 'r'
+                               
                         if(teamAlliance == winner): #if team won
                                 teamWins += 1
                         elif(teamAlliance != 't'): #the team lost
@@ -154,9 +170,28 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
                                 teamTotalScores += scrsSht['L' + str(row)].value #add blue score to total scores
                                 teamScore = scrsSht['L' + str(row)].value
 
-                        if(teamHighest < teamScore):
+                        if(teamHighest < teamScore): #if this match is the teams highest
                                 teamHighest = teamScore
-                        
+
+#non working code to find partner for highest scoring match                                
+#                                if(teamAlliance == 'r'):
+#                                        if(scrsSht['E' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['E' + str(row)])
+#                                                #teamHighestPartner += ' and/or '
+#                                        if(scrsSht['F' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['F' + str(row)])
+#                                        if(scrsSht['G' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['G' + str(row)])
+#
+#                                if(teamAlliance == 'b'):
+#                                        if(scrsSht['I' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['I' + str(row)])
+#                                                #teamHighestPartner += ' and/or '
+#                                        if(scrsSht['J' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['J' + str(row)])
+#                                        if(scrsSht['K' + str(row)] != number):
+#                                                teamHighestPartner += str(scrsSht['K' + str(row)])
+                                
                         if(winner == 'r'):
                                 tWinsAcc += scrsSht['H' + str(row)].value #add the red score to the global winning scores
                                 tWins += 1
@@ -181,7 +216,8 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
                 ties=teamTies,
                 losses=teamLosses,
                 matchWin=teamWinPercentage,
-                highest=teamHighest) #substitutions into team page
+                highest=teamHighest,
+                highestPartner=teamHighestPartner) #substitutions into team page
         
         teamPageStr = template.safe_substitute(htmlSubs)
         teamPage = codecs.open(str(number) + '.html', 'w+') #opens(or creates) team page
@@ -202,7 +238,7 @@ def getTeamInfo(number, tWins, tWinsAcc, teamList):
 statPageSubs = dict(
         avgScore = int(avgScore(rowsInScores)),
         avgWinScore = int(avgWinScore(rowsInScores)),
-        worldHigh = -1)
+        worldHigh = int(worldHigh(rowsInScores)))
 
 statPageStr = statTemplate.safe_substitute(statPageSubs)
 statPage = codecs.open(statPageName, 'w+') #opens(or creates) stat page
@@ -217,14 +253,14 @@ statPage.close()
 ####################################################################################################
 
 teamList = getTeamList(rowsInScores)
-for n in range(4104,4108):
+for n in range(1000,12000):
         teamInfo = getTeamInfo(int(n), totalWins, totalWinAcc, teamList) 
         if(teamInfo):
                 teamDirSubs = dict(number=n, #team number
                         avg=teamInfo[:teamInfo.find(',')]) #find avg score 
                 teamDirectory += teamDirTemplate.safe_substitute(teamDirSubs)
 
-                totalWins = int(teamInfo[teamInfo.find('tWins:') + 6:teamInfo.find(',', teamInfo.find('tWins:'))]) 
+                totalWins = int(teamInfo[teamInfo.find('tWins:') + 6 : teamInfo.find(',', teamInfo.find('tWins:'))]) 
                 totalWinAcc += int(teamInfo[teamInfo.find('tWinAcc:') + 8 : teamInfo.find(',', teamInfo.find('tWinAcc:'))])
 
 

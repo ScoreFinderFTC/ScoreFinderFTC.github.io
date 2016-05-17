@@ -7,9 +7,9 @@ from openpyxl.cell import get_column_letter, column_index_from_string
 
 
 #Pramaters
-oldWb = "Scoring-System-Results.xlsx"   #Downloaded Wb Name
+oldWb = "Scoring-System-Results-With-Worlds.xlsx"   #Downloaded Wb Name
 oldSheetName = "Sheet1" #Sheet to get scores from
-oldSheetRows = 4765     #Rows in old sheet to be worked with
+oldSheetRows =  5793    #Rows in old sheet to be worked with
 oldSheetStartRow = 2    #Row that data starts on
 newWb = "Parsed.xlsx"   #New Wb Name
 
